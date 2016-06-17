@@ -558,7 +558,7 @@ module.exports = function($, tableau, wdcw) {
 		  var dataType = this.getConnectionData()['DataType'];
 		  var username = this.getUsername();
 		  var password = this.getPassword();
-		  var email = this.getConnectionData()['email'];
+		  var email = this.getConnectionData()['email'].trim();
 		  var env = ''; // production env
 		  // Login
 		  var url = 'https://' + env + 'api.tidepool.org/auth/login';
@@ -596,6 +596,7 @@ module.exports = function($, tableau, wdcw) {
 				'upload, wizard';
 		}
 		console.log('getting data ' + reqBody);
+        var start_time = new Date().getTime();
 		$.ajax({
 		  	type: 'POST',
 		  	url: buildApiFrom('/query/data'/*, {last: lastRecord}*/),
@@ -621,7 +622,9 @@ module.exports = function($, tableau, wdcw) {
 		  		// 	  });
 		  		// });
 
-				console.log('got response: ' + response);
+                var request_time = new Date().getTime() - start_time;
+				//console.log('got response: ' + response);
+                console.log('GOT RESPONSE: took ' + request_time + 'ms');
 
 		  		var processedData = response;
 
