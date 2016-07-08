@@ -354,236 +354,236 @@ var COL_HEADERS = {
 
 module.exports = function($, tableau, wdcw) {
 
-  /**
-   * Run during initialization of the web data connector.
-   *
-   * @param {string} phase
-   *   The initialization phase. This can be one of:
-   *   - tableau.phaseEnum.interactivePhase: Indicates when the connector is
-   *     being initialized with a user interface suitable for an end-user to
-   *     enter connection configuration details.
-   *   - tableau.phaseEnum.gatherDataPhase: Indicates when the connector is
-   *     being initialized in the background for the sole purpose of collecting
-   *     data.
-   *   - tableau.phaseEnum.authPhase: Indicates when the connector is being
-   *     accessed in a stripped down context for the sole purpose of refreshing
-   *     an OAuth authentication token.
-   * @param {function} setUpComplete
-   *   A callback function that you must call when all setup tasks have been
-   *   performed.
-   */
-  wdcw.setup = function setup(phase, setUpComplete) {
-    // You may need to perform set up or other initialization tasks at various
-    // points in the data connector flow. You can do so here.
-    switch (phase) {
-      case tableau.phaseEnum.interactivePhase:
-        // Perform set up tasks that relate to when the user will be prompted to
-        // enter information interactively.
-        break;
+	/**
+	 * Run during initialization of the web data connector.
+	 *
+	 * @param {string} phase
+	 *   The initialization phase. This can be one of:
+	 *   - tableau.phaseEnum.interactivePhase: Indicates when the connector is
+	 *     being initialized with a user interface suitable for an end-user to
+	 *     enter connection configuration details.
+	 *   - tableau.phaseEnum.gatherDataPhase: Indicates when the connector is
+	 *     being initialized in the background for the sole purpose of collecting
+	 *     data.
+	 *   - tableau.phaseEnum.authPhase: Indicates when the connector is being
+	 *     accessed in a stripped down context for the sole purpose of refreshing
+	 *     an OAuth authentication token.
+	 * @param {function} setUpComplete
+	 *   A callback function that you must call when all setup tasks have been
+	 *   performed.
+	 */
+	wdcw.setup = function setup(phase, setUpComplete) {
+		// You may need to perform set up or other initialization tasks at various
+		// points in the data connector flow. You can do so here.
+		switch (phase) {
+		case tableau.phaseEnum.interactivePhase:
+			// Perform set up tasks that relate to when the user will be prompted to
+			// enter information interactively.
+			break;
 
-      case tableau.phaseEnum.gatherDataPhase:
-        // Perform set up tasks that should happen when Tableau is attempting to
-        // retrieve data from your connector (the user is not prompted for any
-        // information in this phase.
-        break;
+		case tableau.phaseEnum.gatherDataPhase:
+			// Perform set up tasks that should happen when Tableau is attempting to
+			// retrieve data from your connector (the user is not prompted for any
+			// information in this phase.
+			break;
 
-      case tableau.phaseEnum.authPhase:
-        // Perform set up tasks that should happen when Tableau is attempting to
-        // refresh OAuth authentication tokens.
-        break;
-    }
+		case tableau.phaseEnum.authPhase:
+			// Perform set up tasks that should happen when Tableau is attempting to
+			// refresh OAuth authentication tokens.
+			break;
+		}
 
-    // Always register when initialization tasks are complete by calling this.
-    // This can be especially useful when initialization tasks are asynchronous
-    // in nature.
-    setUpComplete();
-  };
+		// Always register when initialization tasks are complete by calling this.
+		// This can be especially useful when initialization tasks are asynchronous
+		// in nature.
+		setUpComplete();
+	};
 
-  /**
-   * Run when the web data connector is being unloaded. Useful if you need
-   * custom logic to clean up resources or perform other shutdown tasks.
-   *
-   * @param {function} tearDownComplete
-   *   A callback function that you must call when all shutdown tasks have been
-   *   performed.
-   */
-  wdcw.teardown = function teardown(tearDownComplete) {
-    // Once shutdown tasks are complete, call this. Particularly useful if your
-    // clean-up tasks are asynchronous in nature.
-    tearDownComplete();
-  };
+	/**
+	 * Run when the web data connector is being unloaded. Useful if you need
+	 * custom logic to clean up resources or perform other shutdown tasks.
+	 *
+	 * @param {function} tearDownComplete
+	 *   A callback function that you must call when all shutdown tasks have been
+	 *   performed.
+	 */
+	wdcw.teardown = function teardown(tearDownComplete) {
+		// Once shutdown tasks are complete, call this. Particularly useful if your
+		// clean-up tasks are asynchronous in nature.
+		tearDownComplete();
+	};
 
-  /**
-   * Primary method called when Tableau is asking for the column headers that
-   * this web data connector provides. Takes a single callable argument that you
-   * should call with the headers you've retrieved.
-   *
-   * @param {function(Array<{name, type, incrementalRefresh}>)} registerHeaders
-   *   A callback function that takes an array of objects as its sole argument.
-   *   For example, you might call the callback in the following way:
-   *   registerHeaders([
-   *     {name: 'Boolean Column', type: 'bool'},
-   *     {name: 'Date Column', type: 'date'},
-   *     {name: 'DateTime Column', type: 'datetime'},
-   *     {name: 'Float Column', type: 'float'},
-   *     {name: 'Integer Column', type: 'int'},
-   *     {name: 'String Column', type: 'string'}
-   *   ]);
-   *
-   *   Note: to enable support for incremental extract refreshing, add a third
-   *   key (incrementalRefresh) to the header object. Candidate columns for
-   *   incremental refreshes must be of type datetime or integer. During an
-   *   incremental refresh attempt, the most recent value for the given column
-   *   will be passed as "lastRecord" to the tableData method. For example:
-   *   registerHeaders([
-   *     {name: 'DateTime Column', type: 'datetime', incrementalRefresh: true}
-   *   ]);
-   */
-  wdcw.columnHeaders = function columnHeaders(registerHeaders) {
-    // // Do the same to retrieve your actual data.
-    // $.ajax({
-    //   url: buildApiFrom('path/to/your/metadata'),
-    //   // Add basic authentication headers to your request like this. Note that
-    //   // the password is encrypted when stored by Tableau; the username is not.
-    //   headers: {
-    //     Authorization: 'Basic ' + btoa(this.getUsername() + ':' + this.getPassword())
-    //   },
-    //   success: function dataRetrieved(response) {
-    //     var processedColumns = [],
-    //         propName;
+	/**
+	 * Primary method called when Tableau is asking for the column headers that
+	 * this web data connector provides. Takes a single callable argument that you
+	 * should call with the headers you've retrieved.
+	 *
+	 * @param {function(Array<{name, type, incrementalRefresh}>)} registerHeaders
+	 *   A callback function that takes an array of objects as its sole argument.
+	 *   For example, you might call the callback in the following way:
+	 *   registerHeaders([
+	 *     {name: 'Boolean Column', type: 'bool'},
+	 *     {name: 'Date Column', type: 'date'},
+	 *     {name: 'DateTime Column', type: 'datetime'},
+	 *     {name: 'Float Column', type: 'float'},
+	 *     {name: 'Integer Column', type: 'int'},
+	 *     {name: 'String Column', type: 'string'}
+	 *   ]);
+	 *
+	 *   Note: to enable support for incremental extract refreshing, add a third
+	 *   key (incrementalRefresh) to the header object. Candidate columns for
+	 *   incremental refreshes must be of type datetime or integer. During an
+	 *   incremental refresh attempt, the most recent value for the given column
+	 *   will be passed as "lastRecord" to the tableData method. For example:
+	 *   registerHeaders([
+	 *     {name: 'DateTime Column', type: 'datetime', incrementalRefresh: true}
+	 *   ]);
+	 */
+	wdcw.columnHeaders = function columnHeaders(registerHeaders) {
+		// // Do the same to retrieve your actual data.
+		// $.ajax({
+		//   url: buildApiFrom('path/to/your/metadata'),
+		//   // Add basic authentication headers to your request like this. Note that
+		//   // the password is encrypted when stored by Tableau; the username is not.
+		//   headers: {
+		//     Authorization: 'Basic ' + btoa(this.getUsername() + ':' + this.getPassword())
+		//   },
+		//   success: function dataRetrieved(response) {
+		//     var processedColumns = [],
+		//         propName;
 
-    //     // If necessary, process the response from the API into the expected
-    //     // format (highlighted below):
-    //     for (propName in response.properties) {
-    //       if (response.properties.hasOwnProperty(propName)) {
-    //         processedColumns.push({
-    //           name: propName,
-    //           type: response.properties[propName].type,
-    //           // If your connector supports incremental extract refreshes, you
-    //           // can indicate the column to use for refreshing like this:
-    //           incrementalRefresh: propName === 'entityId'
-    //         });
-    //       }
-    //     }
+		//     // If necessary, process the response from the API into the expected
+		//     // format (highlighted below):
+		//     for (propName in response.properties) {
+		//       if (response.properties.hasOwnProperty(propName)) {
+		//         processedColumns.push({
+		//           name: propName,
+		//           type: response.properties[propName].type,
+		//           // If your connector supports incremental extract refreshes, you
+		//           // can indicate the column to use for refreshing like this:
+		//           incrementalRefresh: propName === 'entityId'
+		//         });
+		//       }
+		//     }
 
-    //     // Once data is retrieved and processed, call registerHeaders().
-    //     registerHeaders(processedColumns);
-    //   },
-    //   // Use this.ajaxErrorHandler for basic error handling.
-    //   error: this.ajaxErrorHandler
-    // });
+		//     // Once data is retrieved and processed, call registerHeaders().
+		//     registerHeaders(processedColumns);
+		//   },
+		//   // Use this.ajaxErrorHandler for basic error handling.
+		//   error: this.ajaxErrorHandler
+		// });
 
-	  // TODO: Only supports Basals for now
-	  if (this.getConnectionData()['DataType'] === 'basal') {
-		  var headers = [];
-		  COL_HEADERS.BASAL_COLS.forEach(function shapeData(item) {
-			  headers.push({
-//				  name: item.header,
-				  name: item.key,
-				  type: item.type
-			  });
-		  });
-		  registerHeaders(headers);
-		  // registerHeaders([
-		  // 	  { name: 'Index', type: 'int'},
-		  // 	  { name: 'Group', type: 'int'},
-		  // 	  { name: 'Suppressed', type: 'bool'},
-		  // 	  { name: 'Delivery Type', type: 'string'},
-		  // 	  { name: 'Duration', type: 'int'},
-		  // 	  { name: 'Expected Duration', type: 'int'},
-		  // 	  { name: 'Percent', type: 'float'},
-		  // 	  { name: 'Rate', type: 'float'},
-		  // 	  { name: 'Units', type: 'string'},
-		  // 	  { name: 'Schedule Name', type: 'string'},
-		  // 	  { name: 'Source', type: 'string'},
-		  // 	  { name: 'Device Id', type: 'string'},
-		  // 	  { name: 'Device Time', type: 'datetime'},
-		  // 	  { name: 'Time', type: 'datetime'},
-		  // 	  { name: 'Timezone Offset', type: 'int'},
-		  // 	  { name: 'Clock Drift Offset', type: 'int'},
-		  // 	  { name: 'Conversion Offset', type: 'int'},
-		  // 	  { name: 'Id', type: 'string'},
-		  // 	  { name: 'Created Time', type: 'datetime'},
-		  // 	  { name: 'Hash Upload Id', type: 'string'},
-		  // 	  { name: 'Hash Group Id', type: 'string'},
-		  // 	  { name: 'Payload', type: 'string'},
-		  // 	  { name: 'GUID', type: 'string'},
-		  // 	  { name: 'uploadId', type: 'string'},
-		  // 	  { name: '_groupId', type: 'string'}
-		  // ]);
-	  }
-  };
+		// TODO: Only supports Basals for now
+		if (this.getConnectionData()['DataType'] === 'basal') {
+			var headers = [];
+			COL_HEADERS.BASAL_COLS.forEach(function shapeData(item) {
+				headers.push({
+					//				  name: item.header,
+					name: item.key,
+					type: item.type
+				});
+			});
+			registerHeaders(headers);
+			// registerHeaders([
+			// 	  { name: 'Index', type: 'int'},
+			// 	  { name: 'Group', type: 'int'},
+			// 	  { name: 'Suppressed', type: 'bool'},
+			// 	  { name: 'Delivery Type', type: 'string'},
+			// 	  { name: 'Duration', type: 'int'},
+			// 	  { name: 'Expected Duration', type: 'int'},
+			// 	  { name: 'Percent', type: 'float'},
+			// 	  { name: 'Rate', type: 'float'},
+			// 	  { name: 'Units', type: 'string'},
+			// 	  { name: 'Schedule Name', type: 'string'},
+			// 	  { name: 'Source', type: 'string'},
+			// 	  { name: 'Device Id', type: 'string'},
+			// 	  { name: 'Device Time', type: 'datetime'},
+			// 	  { name: 'Time', type: 'datetime'},
+			// 	  { name: 'Timezone Offset', type: 'int'},
+			// 	  { name: 'Clock Drift Offset', type: 'int'},
+			// 	  { name: 'Conversion Offset', type: 'int'},
+			// 	  { name: 'Id', type: 'string'},
+			// 	  { name: 'Created Time', type: 'datetime'},
+			// 	  { name: 'Hash Upload Id', type: 'string'},
+			// 	  { name: 'Hash Group Id', type: 'string'},
+			// 	  { name: 'Payload', type: 'string'},
+			// 	  { name: 'GUID', type: 'string'},
+			// 	  { name: 'uploadId', type: 'string'},
+			// 	  { name: '_groupId', type: 'string'}
+			// ]);
+		}
+	};
 
 
-  /**
-   * Primary method called when Tableau is asking for your web data connector's
-   * data. Takes a callable argument that you should call with all of the
-   * data you've retrieved. You may optionally pass a token as a second argument
-   * to support paged/chunked data retrieval.
-   *
-   * @param {function(Array<{object}>, {string})} registerData
-   *   A callback function that takes an array of objects as its sole argument.
-   *   Each object should be a simple key/value map of column name to column
-   *   value. For example, you might call the callback in the following way:
-   *   registerData([
-   *     {'String Column': 'String Column Value', 'Integer Column': 123}
-   *   ]});
-   *
-   *   It's possible that the API you're interacting with supports some mechanism
-   *   for paging or filtering. To simplify the process of making several paged
-   *   calls to your API, you may optionally pass a second argument in your call
-   *   to the registerData callback. This argument should be a string token that
-   *   represents the last record you retrieved.
-   *
-   *   If provided, your implementation of the tableData method will be called
-   *   again, this time with the token you provide here. Once all data has been
-   *   retrieved, pass null, false, 0, or an empty string.
-   *
-   * @param {string} lastRecord
-   *   Optional. If you indicate in the call to registerData that more data is
-   *   available (by passing a token representing the last record retrieved),
-   *   then the lastRecord argument will be populated with the token that you
-   *   provided. Use this to update/modify the API call you make to handle
-   *   pagination or filtering.
-   *
-   *   If you indicated a column in wdcw.columnHeaders suitable for use during
-   *   an incremental extract refresh, the last value of the given column will
-   *   be passed as the value of lastRecord when an incremental refresh is
-   *   triggered.
-   */
-  wdcw.tableData = function tableData(registerData, lastRecord) {
-	  // TODO: Only supports Basals for now
-      if (this.getConnectionData()['DataType'] === 'basal') {
+	/**
+	 * Primary method called when Tableau is asking for your web data connector's
+	 * data. Takes a callable argument that you should call with all of the
+	 * data you've retrieved. You may optionally pass a token as a second argument
+	 * to support paged/chunked data retrieval.
+	 *
+	 * @param {function(Array<{object}>, {string})} registerData
+	 *   A callback function that takes an array of objects as its sole argument.
+	 *   Each object should be a simple key/value map of column name to column
+	 *   value. For example, you might call the callback in the following way:
+	 *   registerData([
+	 *     {'String Column': 'String Column Value', 'Integer Column': 123}
+	 *   ]});
+	 *
+	 *   It's possible that the API you're interacting with supports some mechanism
+	 *   for paging or filtering. To simplify the process of making several paged
+	 *   calls to your API, you may optionally pass a second argument in your call
+	 *   to the registerData callback. This argument should be a string token that
+	 *   represents the last record you retrieved.
+	 *
+	 *   If provided, your implementation of the tableData method will be called
+	 *   again, this time with the token you provide here. Once all data has been
+	 *   retrieved, pass null, false, 0, or an empty string.
+	 *
+	 * @param {string} lastRecord
+	 *   Optional. If you indicate in the call to registerData that more data is
+	 *   available (by passing a token representing the last record retrieved),
+	 *   then the lastRecord argument will be populated with the token that you
+	 *   provided. Use this to update/modify the API call you make to handle
+	 *   pagination or filtering.
+	 *
+	 *   If you indicated a column in wdcw.columnHeaders suitable for use during
+	 *   an incremental extract refresh, the last value of the given column will
+	 *   be passed as the value of lastRecord when an incremental refresh is
+	 *   triggered.
+	 */
+	wdcw.tableData = function tableData(registerData, lastRecord) {
+		// TODO: Only supports Basals for now
+		if (this.getConnectionData()['DataType'] === 'basal') {
 
-		  var dataType = this.getConnectionData()['DataType'];
-		  var username = this.getUsername();
-		  var password = this.getPassword();
-		  var email = this.getConnectionData()['email'].trim();
-		  var env = ''; // production env
-		  // Login
-		  var url = 'https://' + env + 'api.tidepool.org/auth/login';
- 		  console.log('Logging in with ' + url);
-		  $.ajax({
-			  type: 'POST',
-			  url: url,
-			  beforeSend: function (xhr) {
-				  xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
-			  },
-			  success: function(data, textStatus, request){
-		  		  var sessionToken = request.getResponseHeader('x-tidepool-session-token')
+			var dataType = this.getConnectionData()['DataType'];
+			var username = this.getUsername();
+			var password = this.getPassword();
+			var email = this.getConnectionData()['email'].trim();
+			var env = ''; // production env
+			// Login
+			var url = 'https://' + env + 'api.tidepool.org/auth/login';
+ 			console.log('Logging in with ' + url);
+			$.ajax({
+				type: 'POST',
+				url: url,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+				},
+				success: function(data, textStatus, request){
+		  			var sessionToken = request.getResponseHeader('x-tidepool-session-token')
 
-				  console.log('Logged in.');
-				  getData(sessionToken, email, dataType, registerData);
+					console.log('Logged in.');
+					getData(sessionToken, email, dataType, registerData);
 
-			  },
-			  error: this.ajaxErrorHandler
-		  });
+				},
+				error: this.ajaxErrorHandler
+			});
 
-      }
+		}
 
-  };
+	};
 
-  // You can write private methods for use above like this:
+	// You can write private methods for use above like this:
 
 	function getData(sessionToken, email, dataType, registerData) {
 		var reqBody = 'METAQUERY WHERE emails CONTAINS ' + email
@@ -645,64 +645,64 @@ module.exports = function($, tableau, wdcw) {
 		});
 	}
 
-  /**
-   * Helper function to build an API endpoint.
-   *
-   * @param {string} path
-   *   API endpoint path from which to build a full URL.
-   *
-   * @param {object} opts
-   *   Options to inform query parameters and paging.
-   */
-  function buildApiFrom(path, opts) {
-    opts = opts || {};
-    path = 'https://api.tidepool.org' + path;
+	/**
+	 * Helper function to build an API endpoint.
+	 *
+	 * @param {string} path
+	 *   API endpoint path from which to build a full URL.
+	 *
+	 * @param {object} opts
+	 *   Options to inform query parameters and paging.
+	 */
+	function buildApiFrom(path, opts) {
+		opts = opts || {};
+		path = 'https://api.tidepool.org' + path;
 
-    // If opts.last was passed, build the URL so the next page is returned.
-    if (opts.last) {
-      path += '?page=' + opts.last + 1;
-    }
+		// If opts.last was passed, build the URL so the next page is returned.
+		if (opts.last) {
+			path += '?page=' + opts.last + 1;
+		}
 
-    return path;
-  }
+		return path;
+	}
 
-  // Polyfill for btoa() in older browsers.
-  // @see https://raw.githubusercontent.com/davidchambers/Base64.js/master/base64.js
-  /* jshint ignore:start */
-  if (typeof btoa === 'undefined') {
-    function btoa(input) {
-      var object = typeof exports != 'undefined' ? exports : this, // #8: web workers
-          chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-          str = String(input);
+	// Polyfill for btoa() in older browsers.
+	// @see https://raw.githubusercontent.com/davidchambers/Base64.js/master/base64.js
+	/* jshint ignore:start */
+	if (typeof btoa === 'undefined') {
+		function btoa(input) {
+			var object = typeof exports != 'undefined' ? exports : this, // #8: web workers
+				chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+				str = String(input);
 
-      function InvalidCharacterError(message) {
-        this.message = message;
-      }
-      InvalidCharacterError.prototype = new Error;
-      InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+			function InvalidCharacterError(message) {
+				this.message = message;
+			}
+			InvalidCharacterError.prototype = new Error;
+			InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 
-      for (
-        // initialize result and counter
-        var block, charCode, idx = 0, map = chars, output = '';
-        // if the next str index does not exist:
-        //   change the mapping table to "="
-        //   check if d has no fractional digits
-        str.charAt(idx | 0) || (map = '=', idx % 1);
-        // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-        output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-      ) {
-        charCode = str.charCodeAt(idx += 3 / 4);
-        if (charCode > 0xFF) {
-          throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-        }
-        block = block << 8 | charCode;
-      }
-      return output;
-    }
-  }
-  /* jshint ignore:end */
+			for (
+				// initialize result and counter
+				var block, charCode, idx = 0, map = chars, output = '';
+				// if the next str index does not exist:
+				//   change the mapping table to "="
+				//   check if d has no fractional digits
+				str.charAt(idx | 0) || (map = '=', idx % 1);
+				// "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+				output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+			) {
+				charCode = str.charCodeAt(idx += 3 / 4);
+				if (charCode > 0xFF) {
+					throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+				}
+				block = block << 8 | charCode;
+			}
+			return output;
+		}
+	}
+	/* jshint ignore:end */
 
-  return wdcw;
+	return wdcw;
 };
 
 // Set the global wdcw variable as expected.
