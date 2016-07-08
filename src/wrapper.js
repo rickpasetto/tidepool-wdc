@@ -273,8 +273,6 @@ var wdcw = window.wdcw || {};
 				$username = $('input[name="username"]'),
 				data = {};
 
-			console.log('submit! ' + $fields);
-
 			e.preventDefault();
 
 			// Format connection data according to assumptions.
@@ -295,7 +293,7 @@ var wdcw = window.wdcw || {};
 
 			// Set connection data and connection name.
 			connector.setConnectionData(data);
-			tableau.connectionName = 'Tidepool Web Data Connector';
+			tableau.connectionName = 'Tidepool ' + data['DataType'];
 
 			// If there was a password, set the password.
 			if ($password.length) {
@@ -306,6 +304,8 @@ var wdcw = window.wdcw || {};
 			if ($username.length) {
 				connector.setUsername($username.val());
 			}
+
+			console.log('tableau.submit! ');
 
 			// Initiate the data retrieval process.
 			tableau.submit();

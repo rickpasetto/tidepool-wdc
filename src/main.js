@@ -473,45 +473,15 @@ module.exports = function($, tableau, wdcw) {
 		//   error: this.ajaxErrorHandler
 		// });
 
-		// TODO: Only supports Basals for now
-		if (this.getConnectionData()['DataType'] === 'basal') {
-			var headers = [];
-			COL_HEADERS.BASAL_COLS.forEach(function shapeData(item) {
-				headers.push({
-					//				  name: item.header,
-					name: item.key,
-					type: item.type
-				});
+		var schema = schemaForDataType(this.getConnectionData()['DataType']);
+		var headers = [];
+		schema.forEach(function shapeData(item) {
+			headers.push({
+				name: item.key,
+				type: item.type
 			});
-			registerHeaders(headers);
-			// registerHeaders([
-			// 	  { name: 'Index', type: 'int'},
-			// 	  { name: 'Group', type: 'int'},
-			// 	  { name: 'Suppressed', type: 'bool'},
-			// 	  { name: 'Delivery Type', type: 'string'},
-			// 	  { name: 'Duration', type: 'int'},
-			// 	  { name: 'Expected Duration', type: 'int'},
-			// 	  { name: 'Percent', type: 'float'},
-			// 	  { name: 'Rate', type: 'float'},
-			// 	  { name: 'Units', type: 'string'},
-			// 	  { name: 'Schedule Name', type: 'string'},
-			// 	  { name: 'Source', type: 'string'},
-			// 	  { name: 'Device Id', type: 'string'},
-			// 	  { name: 'Device Time', type: 'datetime'},
-			// 	  { name: 'Time', type: 'datetime'},
-			// 	  { name: 'Timezone Offset', type: 'int'},
-			// 	  { name: 'Clock Drift Offset', type: 'int'},
-			// 	  { name: 'Conversion Offset', type: 'int'},
-			// 	  { name: 'Id', type: 'string'},
-			// 	  { name: 'Created Time', type: 'datetime'},
-			// 	  { name: 'Hash Upload Id', type: 'string'},
-			// 	  { name: 'Hash Group Id', type: 'string'},
-			// 	  { name: 'Payload', type: 'string'},
-			// 	  { name: 'GUID', type: 'string'},
-			// 	  { name: 'uploadId', type: 'string'},
-			// 	  { name: '_groupId', type: 'string'}
-			// ]);
-		}
+		});
+		registerHeaders(headers);
 	};
 
 
@@ -552,35 +522,29 @@ module.exports = function($, tableau, wdcw) {
 	 *   triggered.
 	 */
 	wdcw.tableData = function tableData(registerData, lastRecord) {
-		// TODO: Only supports Basals for now
-		if (this.getConnectionData()['DataType'] === 'basal') {
+		var dataType = this.getConnectionData()['DataType'];
+		var username = this.getUsername();
+		var password = this.getPassword();
+		var email = this.getConnectionData()['email'].trim();
+		var env = ''; // production env
+		// Login
+		var url = 'https://' + env + 'api.tidepool.org/auth/login';
+ 		console.log('Logging in with ' + url);
+		$.ajax({
+			type: 'POST',
+			url: url,
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+			},
+			success: function(data, textStatus, request){
+		  		var sessionToken = request.getResponseHeader('x-tidepool-session-token')
 
-			var dataType = this.getConnectionData()['DataType'];
-			var username = this.getUsername();
-			var password = this.getPassword();
-			var email = this.getConnectionData()['email'].trim();
-			var env = ''; // production env
-			// Login
-			var url = 'https://' + env + 'api.tidepool.org/auth/login';
- 			console.log('Logging in with ' + url);
-			$.ajax({
-				type: 'POST',
-				url: url,
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
-				},
-				success: function(data, textStatus, request){
-		  			var sessionToken = request.getResponseHeader('x-tidepool-session-token')
+				console.log('Logged in.');
+				getData(sessionToken, email, dataType, registerData);
 
-					console.log('Logged in.');
-					getData(sessionToken, email, dataType, registerData);
-
-				},
-				error: this.ajaxErrorHandler
-			});
-
-		}
-
+			},
+			error: this.ajaxErrorHandler
+		});
 	};
 
 	// You can write private methods for use above like this:
@@ -624,7 +588,7 @@ module.exports = function($, tableau, wdcw) {
 
                 var request_time = new Date().getTime() - start_time;
 				//console.log('got response: ' + response);
-                console.log('GOT RESPONSE: took ' + request_time + 'ms');
+                console.log('GOT RESPONSE (' + (response + '').length + ') bytes : took ' + request_time + 'ms');
 
 		  		var processedData = response;
 
@@ -665,6 +629,52 @@ module.exports = function($, tableau, wdcw) {
 
 		return path;
 	}
+
+
+	function schemaForDataType(dataType) {
+		switch (dataType) {
+		case 'deviceEvent':
+			return COL_HEADERS.DEVICE_EVENT_COLS;
+			break;
+
+		case 'basal':
+			return COL_HEADERS.BASAL_COLS;
+			break;
+
+		case 'bolus':
+			return COL_HEADERS.BOLUS_COLS;
+			break;
+
+		case 'cbg':
+			return COL_HEADERS.CBG_COLS;
+			break;
+
+		case 'deviceMeta':
+			return COL_HEADERS.CGM_SETTINGS_COLS;
+			break;
+
+		case 'upload':
+			return COL_HEADERS.UPLOAD_COLS;
+			break;
+
+//??		case 'grabbag':
+//??			break;
+
+		case 'ketones':
+			return COL_HEADERS.BLOOD_KETONE_COLS;
+			break;
+
+//??		case 'note':
+//??			break;
+
+		case 'smbg':
+			return COL_HEADERS.SMBG_COLS;
+			break;
+		}
+
+		return nil;
+	}
+
 
 	// Polyfill for btoa() in older browsers.
 	// @see https://raw.githubusercontent.com/davidchambers/Base64.js/master/base64.js
