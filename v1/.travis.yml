@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - '0.12'
+
+before_install:
+  # Install grunt CLI globally in case of a "grunt build" postintall step.
+  - npm install -g grunt-cli
+
+script:
+  # Run our test suite
+  - npm test
