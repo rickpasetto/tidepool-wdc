@@ -10349,172 +10349,10 @@ if ( typeof noGlobal === strundefined ) {
 return jQuery;
 
 }));
-;(function() {
-
-    var versionNumber = "1.1.0";
-    if (typeof tableauVersionBootstrap === 'undefined') {
-        // tableau version bootstrap isn't defined. We are likely running in the simulator so init up our tableau object
-        tableau = {
-            connectionName: "",
-            connectionData: "",
-            password: "",
-            username: "",
-            incrementalExtractColumn: "",
-
-            initCallback: function () {
-                _sendMessage("initCallback");
-            },
-
-            shutdownCallback: function () {
-                _sendMessage("shutdownCallback");
-            },
-
-            submit: function () {
-                _sendMessage("submit");
-            },
-
-            log: function (msg) {
-                _sendMessage("log", {"logMsg": msg});
-            },
-
-            headersCallback: function (fieldNames, types) {
-                _sendMessage("headersCallback", {"fieldNames": fieldNames, "types":types});
-            },
-
-            dataCallback: function (data, lastRecordToken, moreData) {
-                _sendMessage("dataCallback", {"data": data, "lastRecordToken": lastRecordToken, "moreData": moreData});
-            },
-
-            abortWithError: function (errorMsg) {
-                _sendMessage("abortWithError", {"errorMsg": errorMsg});
-            }
-        };
-    } else { // Tableau version bootstrap is defined. Let's use it
-        tableauVersionBootstrap.ReportVersionNumber(versionNumber);
-    }
-
-    // Check if something weird happened during bootstraping. If so, just define a tableau object to we don't
-    // throw errors all over the place because tableau isn't defined
-    if (typeof tableau === "undefined") {
-        tableau = {}
-    }
-
-    tableau.versionNumber = versionNumber;
-
-    tableau.phaseEnum = {
-        interactivePhase: "interactive", 
-        authPhase: "auth",
-        gatherDataPhase: "gatherData"
-    };
-
-    if (!tableau.phase) {
-        tableau.phase = tableau.phaseEnum.interactivePhase;
-    }
-
-    // Assign the functions we always want to have available on the tableau object
-    tableau.makeConnector = function() {
-        var defaultImpls = {
-            init: function() { tableau.initCallback(); },
-            shutdown: function() { tableau.shutdownCallback(); }
-        };
-        return defaultImpls;
-    };
-
-    tableau.registerConnector = function (wdc) {
-        // do some error checking on the wdc
-        var functionNames = ["init", "shutdown", "getColumnHeaders", "getTableData"]
-        for (var ii = functionNames.length - 1; ii >= 0; ii--) {
-            if (typeof(wdc[functionNames[ii]]) !== "function") {
-                throw "The connector did not define the required function: " + functionNames[ii];
-            }
-        };
-        window._wdc = wdc;
-    };
-
-    function _sendMessage(msgName, msgData) {
-        var messagePayload = _buildMessagePayload(msgName, msgData);
-
-        window.parent.postMessage(messagePayload, "*");
-    }
-
-    function _buildMessagePayload(msgName, msgData) {
-        var msgObj = {"msgName": msgName,
-                      "props": _packagePropertyValues(),
-                      "msgData": msgData};
-        return JSON.stringify(msgObj);
-    }
-
-    function _packagePropertyValues() {
-        var propValues = {"connectionName": tableau.connectionName,
-                          "connectionData": tableau.connectionData,
-                          "password": tableau.password,
-                          "username": tableau.username,
-                          "incrementalExtractColumn": tableau.incrementalExtractColumn,
-                          "versionNumber": tableau.versionNumber};
-        return propValues;
-    }
-
-    function _applyPropertyValues(props) {
-        if (props) {
-            tableau.connectionName = props.connectionName;
-            tableau.connectionData = props.connectionData;
-            tableau.password = props.password;
-            tableau.username = props.username;
-            tableau.incrementalExtractColumn = props.incrementalExtractColumn;
-        }
-    }
-
-    function _receiveMessage(event) {
-        var wdc = window._wdc;
-        if (!wdc) {
-            throw "No WDC registered. Did you forget to call tableau.registerConnector?";
-        }
-        var payloadObj = JSON.parse(event.data);
-        var msgData = payloadObj.msgData;
-        _applyPropertyValues(payloadObj.props);
-
-        switch(payloadObj.msgName) {
-            case "init":
-                tableau.phase = msgData.phase;
-                wdc.init();
-            break;
-            case "shutdown":
-                wdc.shutdown();
-            break;
-            case "getColumnHeaders":
-                wdc.getColumnHeaders();
-            break;
-            case "getTableData":
-                wdc.getTableData(msgData.lastRecordToken);
-            break;
-        }
-    };
-
-    // Add global error handler. If there is a javascript error, this will report it to Tableau
-    // so that it can be reported to the user.
-    window.onerror = function (message, file, line, column, errorObj) {
-        if (tableau._hasAlreadyThrownErrorSoDontThrowAgain) {
-            return true;
-        }
-        var msg = message;
-        if(errorObj) {
-            msg += "   stack:" + errorObj.stack;
-        } else {
-            msg += "   file: " + file;
-            msg += "   line: " + line;
-        }
-
-        if (tableau && tableau.abortWithError) {
-            tableau.abortWithError(msg);
-        } else {
-            throw msg;
-        }
-        tableau._hasAlreadyThrownErrorSoDontThrowAgain = true;
-        return true;
-    }
-
-    window.addEventListener('message', _receiveMessage, false);
-})();;/*!
+;/*! Build Number: 2.0.8 */
+!function(t){function e(a){if(i[a])return i[a].exports;var n=i[a]={exports:{},id:a,loaded:!1};return t[a].call(n.exports,n,n.exports,e),n.loaded=!0,n.exports}var i={};return e.m=t,e.c=i,e.p="",e(0)}([function(t,e,i){var a=i(8);a.init()},function(t,e){function i(t){for(var e in a)t[e]=a[e]}var a={phaseEnum:{interactivePhase:"interactive",authPhase:"auth",gatherDataPhase:"gatherData"},authPurposeEnum:{ephemeral:"ephemeral",enduring:"enduring"},authTypeEnum:{none:"none",basic:"basic",custom:"custom"},dataTypeEnum:{bool:"bool",date:"date",datetime:"datetime","float":"float","int":"int",string:"string"},columnRoleEnum:{dimension:"dimension",measure:"measure"},columnTypeEnum:{continuous:"continuous",discrete:"discrete"},aggTypeEnum:{sum:"sum",avg:"avg",median:"median",count:"count",countd:"count_dist"},geographicRoleEnum:{area_code:"area_code",cbsa_msa:"cbsa_msa",city:"city",congressional_district:"congressional_district",country_region:"country_region",county:"county",state_province:"state_province",zip_code_postcode:"zip_code_postcode",latitude:"latitude",longitude:"longitude"},unitsFormatEnum:{thousands:"thousands",millions:"millions",billions_english:"billions_english",billions_standard:"billions_standard"},numberFormatEnum:{number:"number",currency:"currency",scientific:"scientific",percentage:"percentage"},localeEnum:{america:"en-us",brazil:"pt-br",china:"zh-cn",france:"fr-fr",germany:"de-de",japan:"ja-jp",korea:"ko-kr",spain:"es-es"}};t.exports.apply=i},function(t,e){function i(t){this.nativeApiRootObj=t,this._initPublicInterface(),this._initPrivateInterface()}i.prototype._initPublicInterface=function(){console.log("Initializing public interface for NativeDispatcher"),this._submitCalled=!1;var t={};t.abortForAuth=this._abortForAuth.bind(this),t.abortWithError=this._abortWithError.bind(this),t.addCrossOriginException=this._addCrossOriginException.bind(this),t.log=this._log.bind(this),t.submit=this._submit.bind(this),this.publicInterface=t},i.prototype._abortForAuth=function(t){this.nativeApiRootObj.WDCBridge_Api_abortForAuth.api(t)},i.prototype._abortWithError=function(t){this.nativeApiRootObj.WDCBridge_Api_abortWithError.api(t)},i.prototype._addCrossOriginException=function(t){this.nativeApiRootObj.WDCBridge_Api_addCrossOriginException.api(t)},i.prototype._log=function(t){this.nativeApiRootObj.WDCBridge_Api_log.api(t)},i.prototype._submit=function(){return this._submitCalled?void console.log("submit called more than once"):(this._submitCalled=!0,void this.nativeApiRootObj.WDCBridge_Api_submit.api())},i.prototype._initPrivateInterface=function(){console.log("Initializing private interface for NativeDispatcher"),this._initCallbackCalled=!1,this._shutdownCallbackCalled=!1;var t={};t._initCallback=this._initCallback.bind(this),t._shutdownCallback=this._shutdownCallback.bind(this),t._schemaCallback=this._schemaCallback.bind(this),t._tableDataCallback=this._tableDataCallback.bind(this),t._dataDoneCallback=this._dataDoneCallback.bind(this),this.privateInterface=t},i.prototype._initCallback=function(){return this._initCallbackCalled?void console.log("initCallback called more than once"):(this._initCallbackCalled=!0,void this.nativeApiRootObj.WDCBridge_Api_initCallback.api())},i.prototype._shutdownCallback=function(){return this._shutdownCallbackCalled?void console.log("shutdownCallback called more than once"):(this._shutdownCallbackCalled=!0,void this.nativeApiRootObj.WDCBridge_Api_shutdownCallback.api())},i.prototype._schemaCallback=function(t,e){this.nativeApiRootObj.WDCBridge_Api_schemaCallbackEx?this.nativeApiRootObj.WDCBridge_Api_schemaCallbackEx.api(t,e||[]):this.nativeApiRootObj.WDCBridge_Api_schemaCallback.api(t)},i.prototype._tableDataCallback=function(t,e){this.nativeApiRootObj.WDCBridge_Api_tableDataCallback.api(t,e)},i.prototype._dataDoneCallback=function(){this.nativeApiRootObj.WDCBridge_Api_dataDoneCallback.api()},t.exports=i},function(t,e,i){function a(t,e,i){this.privateApiObj=e,this.globalObj=i,this._hasAlreadyThrownErrorSoDontThrowAgain=!1,this.changeTableauApiObj(t)}var n=i(5),o=i(1);a.prototype.init=function(){console.log("Initializing shared WDC"),this.globalObj.onerror=this._errorHandler.bind(this),this._initTriggerFunctions(),this._initDeprecatedFunctions()},a.prototype.changeTableauApiObj=function(t){this.tableauApiObj=t,this.tableauApiObj.makeConnector=this._makeConnector.bind(this),this.tableauApiObj.registerConnector=this._registerConnector.bind(this),o.apply(this.tableauApiObj)},a.prototype._errorHandler=function(t,e,i,a,n){if(console.error(n),this._hasAlreadyThrownErrorSoDontThrowAgain)return!0;var o=t;if(n?o+="   stack:"+n.stack:(o+="   file: "+e,o+="   line: "+i),!this.tableauApiObj||!this.tableauApiObj.abortWithError)throw o;return this.tableauApiObj.abortWithError(o),this._hasAlreadyThrownErrorSoDontThrowAgain=!0,!0},a.prototype._makeConnector=function(){var t={init:function(t){t()},shutdown:function(t){t()}};return t},a.prototype._registerConnector=function(t){for(var e=["init","shutdown","getSchema","getData"],i=e.length-1;i>=0;i--)if("function"!=typeof t[e[i]])throw"The connector did not define the required function: "+e[i];console.log("Connector registered"),this.globalObj._wdc=t,this._wdc=t},a.prototype._initTriggerFunctions=function(){this.privateApiObj.triggerInitialization=this._triggerInitialization.bind(this),this.privateApiObj.triggerSchemaGathering=this._triggerSchemaGathering.bind(this),this.privateApiObj.triggerDataGathering=this._triggerDataGathering.bind(this),this.privateApiObj.triggerShutdown=this._triggerShutdown.bind(this)},a.prototype._triggerInitialization=function(){this._wdc.init(this.privateApiObj._initCallback)},a.prototype._triggerSchemaGathering=function(){this._wdc.getSchema(this.privateApiObj._schemaCallback)},a.prototype._triggerDataGathering=function(t){if(1!=t.length)throw"Unexpected number of tables specified. Expected 1, actual "+t.length.toString();var e=t[0],i=new n(e.tableInfo,e.incrementValue,this.privateApiObj._tableDataCallback);this._wdc.getData(i,this.privateApiObj._dataDoneCallback)},a.prototype._triggerShutdown=function(){this._wdc.shutdown(this.privateApiObj._shutdownCallback)},a.prototype._initDeprecatedFunctions=function(){this.tableauApiObj.initCallback=this._initCallback.bind(this),this.tableauApiObj.headersCallback=this._headersCallback.bind(this),this.tableauApiObj.dataCallback=this._dataCallback.bind(this),this.tableauApiObj.shutdownCallback=this._shutdownCallback.bind(this)},a.prototype._initCallback=function(){this.tableauApiObj.abortWithError("tableau.initCallback has been deprecated in version 2.0.0. Please use the callback function passed to init")},a.prototype._headersCallback=function(t,e){this.tableauApiObj.abortWithError("tableau.headersCallback has been deprecated in version 2.0.0")},a.prototype._dataCallback=function(t,e,i){this.tableauApiObj.abortWithError("tableau.dataCallback has been deprecated in version 2.0.0")},a.prototype._shutdownCallback=function(){this.tableauApiObj.abortWithError("tableau.shutdownCallback has been deprecated in version 2.0.0. Please use the callback function passed to shutdown")},t.exports=a},function(t,e,i){function a(t){this.globalObj=t,this._initMessageHandling(),this._initPublicInterface(),this._initPrivateInterface()}a.prototype._initMessageHandling=function(){console.log("Initializing message handling"),this.globalObj.addEventListener("message",this._receiveMessage.bind(this),!1),this.globalObj.document.addEventListener("DOMContentLoaded",this._onDomContentLoaded.bind(this))},a.prototype._onDomContentLoaded=function(){if(this.globalObj.parent!==window&&this.globalObj.parent.postMessage(this._buildMessagePayload("loaded"),"*"),this.globalObj.opener)try{this.globalObj.opener.postMessage(this._buildMessagePayload("loaded"),"*")}catch(t){console.warn("Some versions of IE may not accurately simulate the Web Data Connector. Please retry on a Webkit based browser")}},a.prototype._packagePropertyValues=function(){var t={connectionName:this.globalObj.tableau.connectionName,connectionData:this.globalObj.tableau.connectionData,password:this.globalObj.tableau.password,username:this.globalObj.tableau.username,incrementalExtractColumn:this.globalObj.tableau.incrementalExtractColumn,versionNumber:this.globalObj.tableau.versionNumber,locale:this.globalObj.tableau.locale,authPurpose:this.globalObj.tableau.authPurpose};return t},a.prototype._applyPropertyValues=function(t){t&&(this.globalObj.tableau.connectionName=t.connectionName,this.globalObj.tableau.connectionData=t.connectionData,this.globalObj.tableau.password=t.password,this.globalObj.tableau.username=t.username,this.globalObj.tableau.incrementalExtractColumn=t.incrementalExtractColumn,this.globalObj.tableau.locale=t.locale,this.globalObj.tableau.language=t.locale,this.globalObj.tableau.authPurpose=t.authPurpose)},a.prototype._buildMessagePayload=function(t,e,i){var a={msgName:t,msgData:e,props:i,version:"2.0.8"};return JSON.stringify(a)},a.prototype._sendMessage=function(t,e){var i=this._buildMessagePayload(t,e,this._packagePropertyValues());if("undefined"!=typeof this.globalObj.webkit&&"undefined"!=typeof this.globalObj.webkit.messageHandlers&&"undefined"!=typeof this.globalObj.webkit.messageHandlers.wdcHandler)this.globalObj.webkit.messageHandlers.wdcHandler.postMessage(i);else{if(!this._sourceWindow)throw"Looks like the WDC is calling a tableau function before tableau.init() has been called.";this._sourceWindow.postMessage(i,"*")}},a.prototype._getPayloadObj=function(t){var e=null;try{e=JSON.parse(t)}catch(i){return null}return e},a.prototype._receiveMessage=function(t){console.log("Received message!");var e=this.globalObj._wdc;if(!e)throw"No WDC registered. Did you forget to call tableau.registerConnector?";var i=this._getPayloadObj(t.data);if(i){this._sourceWindow||(this._sourceWindow=t.source);var a=i.msgData;switch(this._applyPropertyValues(i.props),i.msgName){case"init":this.globalObj.tableau.phase=a.phase,this.globalObj._tableau.triggerInitialization();break;case"shutdown":this.globalObj._tableau.triggerShutdown();break;case"getSchema":this.globalObj._tableau.triggerSchemaGathering();break;case"getData":this.globalObj._tableau.triggerDataGathering(a.tablesAndIncrementValues)}}},a.prototype._initPublicInterface=function(){console.log("Initializing public interface"),this._submitCalled=!1;var t={};t.abortForAuth=this._abortForAuth.bind(this),t.abortWithError=this._abortWithError.bind(this),t.addCrossOriginException=this._addCrossOriginException.bind(this),t.log=this._log.bind(this),t.submit=this._submit.bind(this),this.publicInterface=t},a.prototype._abortForAuth=function(t){this._sendMessage("abortForAuth",{msg:t})},a.prototype._abortWithError=function(t){this._sendMessage("abortWithError",{errorMsg:t})},a.prototype._addCrossOriginException=function(t){console.log("Cross Origin Exception requested in the simulator. Pretending to work."),setTimeout(function(){this.globalObj._wdc.addCrossOriginExceptionCompleted(t)}.bind(this),0)},a.prototype._log=function(t){this._sendMessage("log",{logMsg:t})},a.prototype._submit=function(){this._sendMessage("submit")},a.prototype._initPrivateInterface=function(){console.log("Initializing private interface");var t={};t._initCallback=this._initCallback.bind(this),t._shutdownCallback=this._shutdownCallback.bind(this),t._schemaCallback=this._schemaCallback.bind(this),t._tableDataCallback=this._tableDataCallback.bind(this),t._dataDoneCallback=this._dataDoneCallback.bind(this),this.privateInterface=t},a.prototype._initCallback=function(){this._sendMessage("initCallback")},a.prototype._shutdownCallback=function(){this._sendMessage("shutdownCallback")},a.prototype._schemaCallback=function(t,e){this._sendMessage("_schemaCallback",{schema:t,standardConnections:e||[]})},a.prototype._tableDataCallback=function(t,e){this._sendMessage("_tableDataCallback",{tableName:t,data:e})},a.prototype._dataDoneCallback=function(){this._sendMessage("_dataDoneCallback")},t.exports=a},function(t,e){function i(t,e,i){this.tableInfo=t,this.incrementValue=e||"",this._dataCallbackFn=i,this.appendRows=this._appendRows.bind(this)}i.prototype._appendRows=function(t){return t?Array.isArray(t)?void this._dataCallbackFn(this.tableInfo.id,t):void console.warn("Table.appendRows must take an array of arrays or array of objects"):void console.warn("rows data is null or undefined")},t.exports=i},function(t,e){function i(t,e){for(var i in t)"function"==typeof t[i]&&(e[i]=t[i])}t.exports.copyFunctions=i},function(t,e,i){"use strict";function a(t,e,i){function o(t,e){var a=t[0],o=t[1];c[a]={connect:function(t){return"function"!=typeof t?void console.error("Bad callback given to connect to signal "+a):(c.__objectSignals__[o]=c.__objectSignals__[o]||[],c.__objectSignals__[o].push(t),void(e||"destroyed"===a||i.exec({type:n.connectToSignal,object:c.__id__,signal:o})))},disconnect:function(t){if("function"!=typeof t)return void console.error("Bad callback given to disconnect from signal "+a);c.__objectSignals__[o]=c.__objectSignals__[o]||[];var r=c.__objectSignals__[o].indexOf(t);return r===-1?void console.error("Cannot find connection of signal "+a+" to "+t.name):(c.__objectSignals__[o].splice(r,1),void(e||0!==c.__objectSignals__[o].length||i.exec({type:n.disconnectFromSignal,object:c.__id__,signal:o})))}}}function r(t,e){var i=c.__objectSignals__[t];i&&i.forEach(function(t){t.apply(t,e)})}function s(t){var e=t[0],a=t[1];c[e]=function(){for(var t,e=[],o=0;o<arguments.length;++o)"function"==typeof arguments[o]?t=arguments[o]:e.push(arguments[o]);i.exec({type:n.invokeMethod,object:c.__id__,method:a,args:e},function(e){if(void 0!==e){var i=c.unwrapQObject(e);t&&t(i)}})}}function l(t){var e=t[0],a=t[1],r=t[2];c.__propertyCache__[e]=t[3],r&&(1===r[0]&&(r[0]=a+"Changed"),o(r,!0)),Object.defineProperty(c,a,{get:function(){var t=c.__propertyCache__[e];return void 0===t&&console.warn('Undefined value in property cache for property "'+a+'" in object '+c.__id__),t},set:function(t){return void 0===t?void console.warn("Property setter for "+a+" called with undefined value!"):(c.__propertyCache__[e]=t,void i.exec({type:n.setProperty,object:c.__id__,property:e,value:t}))}})}this.__id__=t,i.objects[t]=this,this.__objectSignals__={},this.__propertyCache__={};var c=this;this.unwrapQObject=function(t){if(t instanceof Array){for(var e=new Array(t.length),n=0;n<t.length;++n)e[n]=c.unwrapQObject(t[n]);return e}if(!t||!t["__QObject*__"]||void 0===t.id)return t;var o=t.id;if(i.objects[o])return i.objects[o];if(!t.data)return void console.error("Cannot unwrap unknown QObject "+o+" without data.");var r=new a(o,t.data,i);return r.destroyed.connect(function(){if(i.objects[o]===r){delete i.objects[o];var t=[];for(var e in r)t.push(e);for(var a in t)delete r[t[a]]}}),r.unwrapProperties(),r},this.unwrapProperties=function(){for(var t in c.__propertyCache__)c.__propertyCache__[t]=c.unwrapQObject(c.__propertyCache__[t])},this.propertyUpdate=function(t,e){for(var i in e){var a=e[i];c.__propertyCache__[i]=a}for(var n in t)r(n,t[n])},this.signalEmitted=function(t,e){r(t,e)},e.methods.forEach(s),e.properties.forEach(l),e.signals.forEach(function(t){o(t,!1)});for(var t in e.enums)c[t]=e.enums[t]}var n={signal:1,propertyUpdate:2,init:3,idle:4,debug:5,invokeMethod:6,connectToSignal:7,disconnectFromSignal:8,setProperty:9,response:10},o=function(t,e){if("object"!=typeof t||"function"!=typeof t.send)return void console.error("The QWebChannel expects a transport object with a send function and onmessage callback property. Given is: transport: "+typeof t+", transport.send: "+typeof t.send);var i=this;this.transport=t,this.send=function(t){"string"!=typeof t&&(t=JSON.stringify(t)),i.transport.send(t)},this.transport.onmessage=function(t){var e=t.data;switch("string"==typeof e&&(e=JSON.parse(e)),e.type){case n.signal:i.handleSignal(e);break;case n.response:i.handleResponse(e);break;case n.propertyUpdate:i.handlePropertyUpdate(e);break;default:console.error("invalid message received:",t.data)}},this.execCallbacks={},this.execId=0,this.exec=function(t,e){return e?(i.execId===Number.MAX_VALUE&&(i.execId=Number.MIN_VALUE),t.hasOwnProperty("id")?void console.error("Cannot exec message with property id: "+JSON.stringify(t)):(t.id=i.execId++,i.execCallbacks[t.id]=e,void i.send(t))):void i.send(t)},this.objects={},this.handleSignal=function(t){var e=i.objects[t.object];e?e.signalEmitted(t.signal,t.args):console.warn("Unhandled signal: "+t.object+"::"+t.signal)},this.handleResponse=function(t){return t.hasOwnProperty("id")?(i.execCallbacks[t.id](t.data),void delete i.execCallbacks[t.id]):void console.error("Invalid response message received: ",JSON.stringify(t))},this.handlePropertyUpdate=function(t){for(var e in t.data){var a=t.data[e],o=i.objects[a.object];o?o.propertyUpdate(a.signals,a.properties):console.warn("Unhandled property update: "+a.object+"::"+a.signal)}i.exec({type:n.idle})},this.debug=function(t){i.send({type:n.debug,data:t})},i.exec({type:n.init},function(t){for(var o in t)var r=new a(o,t[o],i);for(var o in i.objects)i.objects[o].unwrapProperties();e&&e(i),i.exec({type:n.idle})})};t.exports={QWebChannel:o}},function(t,e,i){"use strict";function a(t,e){n.copyFunctions(t.publicInterface,window.tableau),n.copyFunctions(t.privateInterface,window._tableau),e.init()}var n=i(6),o=i(3),r=i(2),s=i(4),l=i(7);t.exports.init=function(){var t=null,e=null;window._tableau={},window.tableauVersionBootstrap?(console.log("Initializing NativeDispatcher, Reporting version number"),window.tableauVersionBootstrap.ReportVersionNumber("2.0.8"),t=new r(window)):window.qt&&window.qt.webChannelTransport?(console.log("Initializing NativeDispatcher for qwebchannel"),window.tableau={},window.channel=new l.QWebChannel(qt.webChannelTransport,function(i){console.log("QWebChannel created successfully"),window._tableau._nativeSetupCompleted=function(){t=new r(i.objects),window.tableau=i.objects.tableau,e.changeTableauApiObj(window.tableau),a(t,e)},i.objects.tableauVersionBootstrap.ReportVersionNumber("2.0.8")})):(console.log("Version Bootstrap is not defined, Initializing SimulatorDispatcher"),window.tableau={},t=new s(window)),e=new o(window.tableau,window._tableau,window),t&&a(t,e)}}]);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYnVuZGxlLm1pbi5qcyIsInNvdXJjZXMiOlsid2VicGFjazovLy9idW5kbGUubWluLmpzIl0sIm1hcHBpbmdzIjoiO0FBQ0EiLCJzb3VyY2VSb290IjoiIn0=
+;/*!
  * Bootstrap v4.0.0-alpha.2 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
@@ -14097,7 +13935,7 @@ var wdcw = window.wdcw || {};
 	 * - Unifies the callback-based API of all connector wrapper methods, and
 	 *   simplifies asynchronous set-up tasks in the process.
 	 */
-	connector.init = function callConnectorInit() {
+	connector.init = function callConnectorInit(initCallback) {
 		var data = this.getConnectionData(),
 			$input,
 			key;
@@ -14126,11 +13964,11 @@ var wdcw = window.wdcw || {};
 		// current initialization phase.
 		if (wdcw.hasOwnProperty('setup')) {
 			wdcw.setup.call(this, tableau.phase, function setUpComplete() {
-				tableau.initCallback();
+				initCallback();
 			});
 		}
 		else {
-			tableau.initCallback();
+			initCallback();
 		}
 	};
 
@@ -14154,64 +13992,18 @@ var wdcw = window.wdcw || {};
 		}
 	};
 
-	/**
-	 * Simplifies the connector.getColumnHeaders method in a few ways:
-	 * - Enables simpler asynchronous handling by making the interface only accept
-	 *   a callback.
-	 * - Simplifies the API by expecting an array of objects, mapping field names
-	 *   and types on a single object, rather than in two separate arrays.
-	 * - Simplifies incremental refresh handling by bundling this as a declarative
-	 *   property in the column header object.
-	 * - Makes it so the implementor doesn't have to know to call the
-	 *   tableau.headersCallback method.
-	 */
-	connector.getColumnHeaders = function callConnectorColumnHeaders() {
+	connector.getSchema = function callConnectorSchema(schemaCallback) {
 		var thisConnector = this;
 
-		wdcw.columnHeaders.call(this, function getColumnHeadersSuccess(headers) {
-			var names = [],
-				types = [];
+		wdcw.schema.call(this, function getSchemaSuccess(schema) {
 
-			// Iterate through returned column header objects and process them into the
-			// format expected by the API.
-			headers.forEach(function(header) {
-				names.push(header.name);
-				types.push(header.type);
-
-				// If a column is marked as incremental refresh key, then set it.
-				if (header.incrementalRefresh) {
-					thisConnector.setIncrementalExtractColumn(header.name);
-				}
-			});
-
-			tableau.headersCallback(names, types);
+			schemaCallback(schema);
 		});
 	};
 
-	/**
-	 * Simplifies (and limits) the connector.getTableData method in a couple ways:
-	 * - Enables simpler asynchronous handling by providing a callback.
-	 * - Simplifies chunked/paged data handling by limiting the arguments that the
-	 *   implementor needs to be aware of to just 1) the data retrieved and 2) if
-	 *   paging functionality is needed, a token for the last record.
-	 * - Makes it so the implementor doesn't have to know to call the
-	 *   tableau.dataCallback method.
-	 *
-	 * @param {string} lastRecordToken
-	 *   The token provided by the implementor representing the last record or
-	 *   page retrieved.
-	 */
-	connector.getTableData = function callConnectorTableData(lastRecordToken) {
-		wdcw.tableData.call(this, function getTableDataSuccess(data, lastToken) {
-			// If there are more records to be returned, indicate as such to Tableau.
-			if (lastToken) {
-				tableau.dataCallback(data, lastToken, true);
-			}
-			// If no more records need to be retrieved, indicate as such to Tableau.
-			else {
-				tableau.dataCallback(data, null, false);
-			}
-		}, lastRecordToken);
+	connector.getData = function callConnectorData(table, doneCallback) {
+
+		wdcw.tableData.call(this, table, doneCallback);
 	};
 
 	/**
@@ -14369,7 +14161,7 @@ var wdcw = window.wdcw || {};
 
 			// Set connection data and connection name.
 			connector.setConnectionData(data);
-			tableau.connectionName = 'Tidepool ' + data['DataType'];
+			tableau.connectionName = 'Tidepool Blip';
 
 			// If there was a password, set the password.
 			if ($password.length) {
@@ -14397,351 +14189,8 @@ var module = module || {},
     tableau = tableau || {},
     wdcw = window.wdcw || {};
 
-var COL_HEADERS = {
-    SMBG_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Value', key: 'value', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Subtype', key: 'subType', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    CBG_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Value', key: 'value', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    BOLUS_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Subtype', key: 'subType', width: 10 },
-        { header: 'Normal', key: 'normal', width: 10 },
-        { header: 'Expected Normal', key: 'expectedNormal', width: 10 },
-        { header: 'Extended', key: 'extended', width: 10 },
-        { header: 'Expected Extended', key: 'expectedExtended', width: 10 },
-        { header: 'Duration', key: 'duration', width: 10 },
-        { header: 'Expected Duration', key: 'expectedDuration', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    BLOOD_KETONE_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Value', key: 'value', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    CGM_SETTINGS_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'High Alerts Enabled', key: 'highAlerts', width: 10},
-        { header: 'High Alerts Level', key: 'highAlertsLevel', width: 10},
-        { header: 'High Alerts Snooze', key: 'highAlertsSnooze', width: 10},
-        { header: 'Low Alerts Enabled', key: 'lowAlerts', width: 10},
-        { header: 'Low Alerts Level', key: 'lowAlertsLevel', width: 10},
-        { header: 'Low Alerts Snooze', key: 'lowAlertsSnooze', width: 10},
-        { header: 'Out of Range Alerts Enabled', key: 'outOfRangeAlerts', width: 10},
-        { header: 'Out of Range Alerts Snooze', key: 'outOfRangeAlertsSnooze', width: 10},
-        { header: 'Fall Rate Alerts Enabled', key: 'fallRateAlerts', width: 10},
-        { header: 'Fall Rate Alerts Rate', key: 'fallRateAlertsRate', width: 10},
-        { header: 'Rise Rate Alerts Enabled', key: 'riseRateAlerts', width: 10},
-        { header: 'Rise Rate Alerts Rate', key: 'riseRateAlertsRate', width: 10},
-        { header: 'Transmitter Id', key: 'transmitterId', width: 10},
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    BASAL_SCHEDULE_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Sequence', key: 'sequence', width: 10 },
-        { header: 'Active Schedule', key: 'activeSchedule', width: 10 },
-        { header: 'Schedule Name', key: 'scheduleName', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Rate', key: 'rate', width: 10 },
-        { header: 'Start', key: 'start', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    BG_TARGET_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Sequence', key: 'sequence', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Low', key: 'low', width: 10 },
-        { header: 'High', key: 'high', width: 10 },
-        { header: 'Start', key: 'start', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    CARB_RATIO_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Sequence', key: 'sequence', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Amount', key: 'amount', width: 10 },
-        { header: 'Start', key: 'start', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    INSULIN_SENSITIVITY_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Sequence', key: 'sequence', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Amount', key: 'amount', width: 10 },
-        { header: 'Start', key: 'start', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    WIZARD_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'BG Input', key: 'bgInput', width: 10 },
-        { header: 'BG Target', key: 'bgTarget', width: 10 },
-        { header: 'BG Target Low', key: 'bgTargetLow', width: 10 },
-        { header: 'BG Target High', key: 'bgTargetHigh', width: 10 },
-        { header: 'BG Target Range', key: 'bgTargetRange', width: 10 },
-        { header: 'Bolus Id', key: 'bolus', width: 10 },
-        { header: 'Carb Input', key: 'carbInput', width: 10 },
-        { header: 'Insulin Carb Ratio', key: 'insulinCarbRatio', width: 10 },
-        { header: 'Insulin On Board', key: 'insulinOnBoard', width: 10 },
-        { header: 'Insulin Sensitivity', key: 'insulinSensitivity', width: 10 },
-        { header: 'Recommended Units for Carbs', key: 'recommendedCarb', width: 10 },
-        { header: 'Recommended Units for Correction', key: 'recommendedCorrection', width: 10 },
-        { header: 'Recommended Net Units', key: 'recommendedNet', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    UPLOAD_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Uploaded by User', key: 'byUser', width: 10 },
-        { header: 'Hash Uploaded by User', key: 'hash_byUser', width: 10 },
-        { header: 'Device Manufacturer', key: 'deviceManufacturer', width: 10 },
-        { header: 'Device Model', key: 'deviceModel', width: 10 },
-        { header: 'Device Serial Number', key: 'deviceSerialNumber', width: 10 },
-        { header: 'Device Tag', key: 'deviceTag', width: 10 },
-        { header: 'Computer Time', key: 'computerTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Time Processing', key: 'timeProcessing', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: 'Version', key: 'version', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    DEVICE_EVENT_COLS: [
-        { header: 'Index', key: 'index', width: 10 },
-        { header: 'Group', key: 'group', width: 10 },
-        { header: 'Subtype', key: 'subType', width: 10 },
-        { header: 'Alarm Type', key: 'alarmType', width: 10 },
-        { header: 'Units', key: 'units', width: 10 },
-        { header: 'Value', key: 'value', width: 10 },
-        { header: 'Prime Target', key: 'primeTarget', width: 10 },
-        { header: 'Volume', key: 'volume', width: 10 },
-        { header: 'Time Change From', key: 'timeChangeFrom', width: 10 },
-        { header: 'Time Change To', key: 'timeChangeTo', width: 10 },
-        { header: 'Time Change Agent', key: 'timeChangeAgent', width: 10 },
-        { header: 'Time Change Reasons', key: 'timeChangeReasons', width: 10 },
-        { header: 'Time Change Timezone', key: 'timeChangeTimezone', width: 10 },
-        { header: 'Status', key: 'status', width: 10 },
-        { header: 'Duration', key: 'duration', width: 10 },
-        { header: 'Expected Duration', key: 'expectedDuration', width: 10 },
-        { header: 'Reason Suspended', key: 'reasonSuspended', width: 10 },
-        { header: 'Reason Resumed', key: 'reasonResumed', width: 10 },
-        { header: 'Source', key: 'source', width: 10 },
-        { header: 'Device Id', key: 'deviceId', width: 10 },
-        { header: 'Device Time', key: 'deviceTime', width: 10 },
-        { header: 'Time', key: 'time', width: 10 },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10 },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10 },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10 },
-        { header: 'Id', key: 'id', width: 10 },
-        { header: 'Created Time', key: 'createdTime', width: 10 },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10 },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10 },
-        { header: 'Payload', key: 'payload', width: 10 },
-        { header: 'GUID', key: 'guid', width: 10 },
-        { header: null, key: 'uploadId', width: 10 },
-        { header: null, key: '_groupId', width: 10 }
-    ],
-
-    BASAL_COLS: [
-        { header: 'Index', key: 'index', width: 10, type: 'int' },
-        { header: 'Group', key: 'group', width: 10, type: 'int' },
-        { header: 'Suppressed', key: 'suppressed', width: 10, type: 'bool' },
-        { header: 'Delivery Type', key: 'deliveryType', width: 10, type: 'string' },
-        { header: 'Duration', key: 'duration', width: 10, type: 'int' },
-        { header: 'Expected Duration', key: 'expectedDuration', width: 10, type: 'int' },
-        { header: 'Percent', key: 'percent', width: 10, type: 'float' },
-        { header: 'Rate', key: 'rate', width: 10, type: 'float' },
-        { header: 'Units', key: 'units', width: 10, type: 'string' },
-        { header: 'Schedule Name', key: 'scheduleName', width: 10, type: 'string' },
-        { header: 'Source', key: 'source', width: 10, type: 'string' },
-        { header: 'Device Id', key: 'deviceId', width: 10, type: 'string' },
-        { header: 'Device Time', key: 'deviceTime', width: 10, type: 'datetime' },
-        { header: 'Time', key: 'time', width: 10, type: 'datetime' },
-        { header: 'Timezone Offset', key: 'timezoneOffset', width: 10, type: 'int' },
-        { header: 'Clock Drift Offset', key: 'clockDriftOffset', width: 10, type: 'int' },
-        { header: 'Conversion Offset', key: 'conversionOffset', width: 10, type: 'int' },
-        { header: 'Id', key: 'id', width: 10, type: 'string' },
-        { header: 'Created Time', key: 'createdTime', width: 10, type: 'datetime' },
-        { header: 'Hash Upload Id', key: 'hash_uploadId', width: 10, type: 'string' },
-        { header: 'Hash Group Id', key: 'hash_groupId', width: 10, type: 'string' },
-        { header: 'Payload', key: 'payload', width: 10, type: 'string' },
-        { header: 'GUID', key: 'guid', width: 10, type: 'string' },
-        { header: null, key: 'uploadId', width: 10, type: 'string' },
-        { header: null, key: '_groupId', width: 10, type: 'string' }
-    ]
-};
+var TIDEPOOL_ENV = ''; // XXX PRODUCTION!!??!!
+var TIDEPOOL_URL = 'https://' + TIDEPOOL_ENV + 'api.tidepool.org';
 
 module.exports = function($, tableau, wdcw) {
 
@@ -14804,122 +14253,17 @@ module.exports = function($, tableau, wdcw) {
 		tearDownComplete();
 	};
 
-	/**
-	 * Primary method called when Tableau is asking for the column headers that
-	 * this web data connector provides. Takes a single callable argument that you
-	 * should call with the headers you've retrieved.
-	 *
-	 * @param {function(Array<{name, type, incrementalRefresh}>)} registerHeaders
-	 *   A callback function that takes an array of objects as its sole argument.
-	 *   For example, you might call the callback in the following way:
-	 *   registerHeaders([
-	 *     {name: 'Boolean Column', type: 'bool'},
-	 *     {name: 'Date Column', type: 'date'},
-	 *     {name: 'DateTime Column', type: 'datetime'},
-	 *     {name: 'Float Column', type: 'float'},
-	 *     {name: 'Integer Column', type: 'int'},
-	 *     {name: 'String Column', type: 'string'}
-	 *   ]);
-	 *
-	 *   Note: to enable support for incremental extract refreshing, add a third
-	 *   key (incrementalRefresh) to the header object. Candidate columns for
-	 *   incremental refreshes must be of type datetime or integer. During an
-	 *   incremental refresh attempt, the most recent value for the given column
-	 *   will be passed as "lastRecord" to the tableData method. For example:
-	 *   registerHeaders([
-	 *     {name: 'DateTime Column', type: 'datetime', incrementalRefresh: true}
-	 *   ]);
-	 */
-	wdcw.columnHeaders = function columnHeaders(registerHeaders) {
-		// // Do the same to retrieve your actual data.
-		// $.ajax({
-		//   url: buildApiFrom('path/to/your/metadata'),
-		//   // Add basic authentication headers to your request like this. Note that
-		//   // the password is encrypted when stored by Tableau; the username is not.
-		//   headers: {
-		//     Authorization: 'Basic ' + btoa(this.getUsername() + ':' + this.getPassword())
-		//   },
-		//   success: function dataRetrieved(response) {
-		//     var processedColumns = [],
-		//         propName;
-
-		//     // If necessary, process the response from the API into the expected
-		//     // format (highlighted below):
-		//     for (propName in response.properties) {
-		//       if (response.properties.hasOwnProperty(propName)) {
-		//         processedColumns.push({
-		//           name: propName,
-		//           type: response.properties[propName].type,
-		//           // If your connector supports incremental extract refreshes, you
-		//           // can indicate the column to use for refreshing like this:
-		//           incrementalRefresh: propName === 'entityId'
-		//         });
-		//       }
-		//     }
-
-		//     // Once data is retrieved and processed, call registerHeaders().
-		//     registerHeaders(processedColumns);
-		//   },
-		//   // Use this.ajaxErrorHandler for basic error handling.
-		//   error: this.ajaxErrorHandler
-		// });
-
-		var schema = schemaForDataType(this.getConnectionData()['DataType']);
-		var headers = [];
-		schema.forEach(function shapeData(item) {
-			headers.push({
-				name: item.key,
-				type: item.type
-			});
-		});
-		registerHeaders(headers);
+	wdcw.schema = function schema(registerSchemaCallback) {
+		registerSchemaCallback(TABLE_INFO);
 	};
 
-
-	/**
-	 * Primary method called when Tableau is asking for your web data connector's
-	 * data. Takes a callable argument that you should call with all of the
-	 * data you've retrieved. You may optionally pass a token as a second argument
-	 * to support paged/chunked data retrieval.
-	 *
-	 * @param {function(Array<{object}>, {string})} registerData
-	 *   A callback function that takes an array of objects as its sole argument.
-	 *   Each object should be a simple key/value map of column name to column
-	 *   value. For example, you might call the callback in the following way:
-	 *   registerData([
-	 *     {'String Column': 'String Column Value', 'Integer Column': 123}
-	 *   ]});
-	 *
-	 *   It's possible that the API you're interacting with supports some mechanism
-	 *   for paging or filtering. To simplify the process of making several paged
-	 *   calls to your API, you may optionally pass a second argument in your call
-	 *   to the registerData callback. This argument should be a string token that
-	 *   represents the last record you retrieved.
-	 *
-	 *   If provided, your implementation of the tableData method will be called
-	 *   again, this time with the token you provide here. Once all data has been
-	 *   retrieved, pass null, false, 0, or an empty string.
-	 *
-	 * @param {string} lastRecord
-	 *   Optional. If you indicate in the call to registerData that more data is
-	 *   available (by passing a token representing the last record retrieved),
-	 *   then the lastRecord argument will be populated with the token that you
-	 *   provided. Use this to update/modify the API call you make to handle
-	 *   pagination or filtering.
-	 *
-	 *   If you indicated a column in wdcw.columnHeaders suitable for use during
-	 *   an incremental extract refresh, the last value of the given column will
-	 *   be passed as the value of lastRecord when an incremental refresh is
-	 *   triggered.
-	 */
-	wdcw.tableData = function tableData(registerData, lastRecord) {
-		var dataType = this.getConnectionData()['DataType'];
+	wdcw.tableData = function tableData(table, doneCallback) {
 		var username = this.getUsername();
 		var password = this.getPassword();
 		var email = this.getConnectionData()['email'].trim();
-		var env = ''; // production env
+		var env = ''; // XXX production env!!
 		// Login
-		var url = 'https://' + env + 'api.tidepool.org/auth/login';
+		var url = buildApiFrom('/auth/login')
  		console.log('Logging in with ' + url);
 		$.ajax({
 			type: 'POST',
@@ -14931,8 +14275,8 @@ module.exports = function($, tableau, wdcw) {
 		  		var sessionToken = request.getResponseHeader('x-tidepool-session-token')
 
 				console.log('Logged in.');
-				getData(sessionToken, email, dataType, registerData);
 
+				getDataForTable(sessionToken, email, table, doneCallback);
 			},
 			error: this.ajaxErrorHandler
 		});
@@ -14940,21 +14284,18 @@ module.exports = function($, tableau, wdcw) {
 
 	// You can write private methods for use above like this:
 
-	function getData(sessionToken, email, dataType, registerData) {
+	function getDataForTable(sessionToken, email, table, doneCallback) {
 		var reqBody = 'METAQUERY WHERE emails CONTAINS ' + email
 			+ ' QUERY TYPE IN ';
-		if (dataType) {
-			reqBody += dataType;
-		} else {
-			reqBody += 'basal, bolus, cbg, cgmSettings, deviceEvent, ' +
-				'deviceMeta, pumpSettings, settings, smbg, '+
-				'upload, wizard';
-		}
+
+		// The table id better be right here! --me
+		reqBody += table.tableInfo.id;
+		
 		console.log('getting data ' + reqBody);
         var start_time = new Date().getTime();
 		$.ajax({
 		  	type: 'POST',
-		  	url: buildApiFrom('/query/data'/*, {last: lastRecord}*/),
+		  	url: buildApiFrom('/query/data'),
 			data: reqBody,
 		  	headers: {
 		  		'x-tidepool-session-token': sessionToken,
@@ -14964,36 +14305,19 @@ module.exports = function($, tableau, wdcw) {
 			dataType: 'json',
 		  	success: function dataRetrieved(response) {
 				console.log('Processing response');
-		  		// var processedData = [],
-		  		// 	  // Determine if more data is available via paging.
-		  		// 	  moreData = response.meta.page < response.meta.pages;
-
-		  		// You may need to perform processing to shape the data into an array of
-		  		// objects where each object is a map of column names to values.
-		  		// response.entities.forEach(function shapeData(entity) {
-		  		// 	  processedData.push({
-		  		// 		  column1: entity.columnOneValue,
-		  		// 		  column2: entity.columnTwoValue
-		  		// 	  });
-		  		// });
 
                 var request_time = new Date().getTime() - start_time;
-				//console.log('got response: ' + response);
+
                 console.log('GOT RESPONSE (' + (response + '').length + ') bytes : took ' + request_time + 'ms');
 
+				// TODO: is response in exactly the form we want, or do we need to
+				// shape/swizzle it? 
 		  		var processedData = response;
 
-		  		// Once you've retrieved your data and shaped it into the form expected,
-		  		// call the registerData function. If more data can be retrieved, then
-		  		// supply a token to inform further paged requests.
-		  		// @see buildApiFrom()
-		  		// if (moreData) {
-		  		// 	  registerData(processedData, response.meta.page);
-		  		// }
-		  		// // Otherwise, just register the response data with the callback.
-		  		// else {
-		  		registerData(processedData);
-		  		// }
+		  		table.appendRows(processedData);
+
+                console.log('DONE');
+				doneCallback();
 		  	},
 		  	// Use this.ajaxErrorHandler for basic error handling.
 		  	error: this.ajaxErrorHandler
@@ -15011,7 +14335,7 @@ module.exports = function($, tableau, wdcw) {
 	 */
 	function buildApiFrom(path, opts) {
 		opts = opts || {};
-		path = 'https://api.tidepool.org' + path;
+		path = TIDEPOOL_URL + path;
 
 		// If opts.last was passed, build the URL so the next page is returned.
 		if (opts.last) {
@@ -15019,51 +14343,6 @@ module.exports = function($, tableau, wdcw) {
 		}
 
 		return path;
-	}
-
-
-	function schemaForDataType(dataType) {
-		switch (dataType) {
-		case 'deviceEvent':
-			return COL_HEADERS.DEVICE_EVENT_COLS;
-			break;
-
-		case 'basal':
-			return COL_HEADERS.BASAL_COLS;
-			break;
-
-		case 'bolus':
-			return COL_HEADERS.BOLUS_COLS;
-			break;
-
-		case 'cbg':
-			return COL_HEADERS.CBG_COLS;
-			break;
-
-		case 'deviceMeta':
-			return COL_HEADERS.CGM_SETTINGS_COLS;
-			break;
-
-		case 'upload':
-			return COL_HEADERS.UPLOAD_COLS;
-			break;
-
-//??		case 'grabbag':
-//??			break;
-
-		case 'ketones':
-			return COL_HEADERS.BLOOD_KETONE_COLS;
-			break;
-
-//??		case 'note':
-//??			break;
-
-		case 'smbg':
-			return COL_HEADERS.SMBG_COLS;
-			break;
-		}
-
-		return nil;
 	}
 
 
@@ -15108,3 +14387,377 @@ module.exports = function($, tableau, wdcw) {
 
 // Set the global wdcw variable as expected.
 wdcw = module.exports(jQuery, tableau, wdcw);
+;
+var TABLE_INFO = [
+	{
+		id: "smbg",
+		alias: "Self-monitored Blood Glucose",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Value', id: 'value', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Subtype', id: 'subType', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "cbg",
+		alias: "Continuous Blood Glucose",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Value', id: 'value', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "bolus",
+		alias: "Bolus Insulin",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Subtype', id: 'subType', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Normal', id: 'normal', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Expected Normal', id: 'expectedNormal', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Extended', id: 'extended', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Expected Extended', id: 'expectedExtended', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Duration', id: 'duration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Expected Duration', id: 'expectedDuration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "bloodKetone",
+		alias: "Blood Ketone Levels",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Value', id: 'value', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "cgmSettings",
+		alias: "Continuous Glucose Monitor Settings",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'High Alerts Enabled', id: 'highAlerts', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'High Alerts Level', id: 'highAlertsLevel', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'High Alerts Snooze', id: 'highAlertsSnooze', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Low Alerts Enabled', id: 'lowAlerts', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Low Alerts Level', id: 'lowAlertsLevel', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Low Alerts Snooze', id: 'lowAlertsSnooze', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Out of Range Alerts Enabled', id: 'outOfRangeAlerts', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Out of Range Alerts Snooze', id: 'outOfRangeAlertsSnooze', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Fall Rate Alerts Enabled', id: 'fallRateAlerts', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Fall Rate Alerts Rate', id: 'fallRateAlertsRate', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Rise Rate Alerts Enabled', id: 'riseRateAlerts', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Rise Rate Alerts Rate', id: 'riseRateAlertsRate', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Transmitter Id', id: 'transmitterId', dataType: tableau.dataTypeEnum.string},
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "basalSchedule",
+		alias: "Basal Schedule",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Sequence', id: 'sequence', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Active Schedule', id: 'activeSchedule', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Schedule Name', id: 'scheduleName', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Rate', id: 'rate', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Start', id: 'start', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "bgTarget",
+		alias: "Blood Glucose Target",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Sequence', id: 'sequence', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Low', id: 'low', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'High', id: 'high', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Start', id: 'start', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "carbRatio",
+		alias: "Carb Ratio",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Sequence', id: 'sequence', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Amount', id: 'amount', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Start', id: 'start', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "insulinSensitivity",
+		alias: "Insulin Sensitivity",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Sequence', id: 'sequence', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Amount', id: 'amount', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Start', id: 'start', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "wizard",
+		alias: "(Bolus) Calculator/\"Wizard\" records",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'BG Input', id: 'bgInput', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'BG Target', id: 'bgTarget', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'BG Target Low', id: 'bgTargetLow', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'BG Target High', id: 'bgTargetHigh', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'BG Target Range', id: 'bgTargetRange', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Bolus Id', id: 'bolus', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Carb Input', id: 'carbInput', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Insulin Carb Ratio', id: 'insulinCarbRatio', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Insulin On Board', id: 'insulinOnBoard', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Insulin Sensitivity', id: 'insulinSensitivity', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Recommended Units for Carbs', id: 'recommendedCarb', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Recommended Units for Correction', id: 'recommendedCorrection', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Recommended Net Units', id: 'recommendedNet', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "upload",
+		alias: "Upload Metadata",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Uploaded by User', id: 'byUser', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Uploaded by User', id: 'hash_byUser', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Manufacturer', id: 'deviceManufacturer', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Model', id: 'deviceModel', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Serial Number', id: 'deviceSerialNumber', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Tag', id: 'deviceTag', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Computer Time', id: 'computerTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Time Processing', id: 'timeProcessing', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Version', id: 'version', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "deviceEvent",
+		alias: "Miscellaneous other device events",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Subtype', id: 'subType', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Alarm Type', id: 'alarmType', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Value', id: 'value', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Prime Target', id: 'primeTarget', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Volume', id: 'volume', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Time Change From', id: 'timeChangeFrom', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time Change To', id: 'timeChangeTo', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time Change Agent', id: 'timeChangeAgent', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time Change Reasons', id: 'timeChangeReasons', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time Change Timezone', id: 'timeChangeTimezone', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Status', id: 'status', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Duration', id: 'duration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Expected Duration', id: 'expectedDuration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Reason Suspended', id: 'reasonSuspended', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Reason Resumed', id: 'reasonResumed', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	},{
+		id: "basal",
+		alias: "Basal Insulin",
+		columns: [
+			{ alias: 'Index', id: 'index', dataType: tableau.dataTypeEnum.int },
+			{ alias: 'Group', id: 'group', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Suppressed', id: 'suppressed', dataType: tableau.dataTypeEnum.bool },
+			{ alias: 'Delivery Type', id: 'deliveryType', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Duration', id: 'duration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Expected Duration', id: 'expectedDuration', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Percent', id: 'percent', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Rate', id: 'rate', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Units', id: 'units', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Schedule Name', id: 'scheduleName', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Source', id: 'source', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Id', id: 'deviceId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Device Time', id: 'deviceTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Time', id: 'time', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Timezone Offset', id: 'timezoneOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Clock Drift Offset', id: 'clockDriftOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Conversion Offset', id: 'conversionOffset', dataType: tableau.dataTypeEnum.float },
+			{ alias: 'Id', id: 'id', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Created Time', id: 'createdTime', dataType: tableau.dataTypeEnum.datetime },
+			{ alias: 'Hash Upload Id', id: 'hash_uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Hash Group Id', id: 'hash_groupId', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'Payload', id: 'payload', dataType: tableau.dataTypeEnum.string },
+			{ alias: 'GUID', id: 'guid', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: 'uploadId', dataType: tableau.dataTypeEnum.string },
+			{ alias: null, id: '_groupId', dataType: tableau.dataTypeEnum.string }
+		]
+	}
+];
