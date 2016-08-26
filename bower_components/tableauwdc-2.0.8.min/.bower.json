@@ -1,0 +1,12 @@
+{
+  "name": "tableauwdc-2.0.8.min",
+  "_cacheHeaders": {
+    "Last-Modified": "Wed, 10 Aug 2016 16:48:27 GMT",
+    "Content-Type": "application/x-javascript"
+  },
+  "main": "index.js",
+  "_source": "https://connectors.tableau.com/libs/tableauwdc-2.0.8.min.js",
+  "_target": "*",
+  "_originalSource": "https://connectors.tableau.com/libs/tableauwdc-2.0.8.min.js",
+  "_direct": true
+}

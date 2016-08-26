@@ -6,3 +6,7 @@ Experimental [Tableau Web Data Connector](http://tableau.github.io/webdataconnec
 
 - Clone this repo
 - run 'grunt'
+
+## TO DO
+
+- Querying Tidepool API for table schemas

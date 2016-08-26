@@ -22,7 +22,7 @@ module.exports = function(grunt) {
         },
         src: [
           'bower_components/jquery/dist/jquery.js',
-          'bower_components/tableau/dist/*.js',
+		  'bower_components/tableauwdc-2.0.8.min/index.js',
           'bower_components/bootstrap/dist/js/bootstrap.js',
           'src/wrapper.js',
           'src/**/*.js'

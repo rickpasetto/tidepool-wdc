@@ -21,7 +21,7 @@ var wdcw = window.wdcw || {};
 	 * - Unifies the callback-based API of all connector wrapper methods, and
 	 *   simplifies asynchronous set-up tasks in the process.
 	 */
-	connector.init = function callConnectorInit() {
+	connector.init = function callConnectorInit(initCallback) {
 		var data = this.getConnectionData(),
 			$input,
 			key;
@@ -50,11 +50,11 @@ var wdcw = window.wdcw || {};
 		// current initialization phase.
 		if (wdcw.hasOwnProperty('setup')) {
 			wdcw.setup.call(this, tableau.phase, function setUpComplete() {
-				tableau.initCallback();
+				initCallback();
 			});
 		}
 		else {
-			tableau.initCallback();
+			initCallback();
 		}
 	};
 
@@ -78,64 +78,18 @@ var wdcw = window.wdcw || {};
 		}
 	};
 
-	/**
-	 * Simplifies the connector.getColumnHeaders method in a few ways:
-	 * - Enables simpler asynchronous handling by making the interface only accept
-	 *   a callback.
-	 * - Simplifies the API by expecting an array of objects, mapping field names
-	 *   and types on a single object, rather than in two separate arrays.
-	 * - Simplifies incremental refresh handling by bundling this as a declarative
-	 *   property in the column header object.
-	 * - Makes it so the implementor doesn't have to know to call the
-	 *   tableau.headersCallback method.
-	 */
-	connector.getColumnHeaders = function callConnectorColumnHeaders() {
+	connector.getSchema = function callConnectorSchema(schemaCallback) {
 		var thisConnector = this;
 
-		wdcw.columnHeaders.call(this, function getColumnHeadersSuccess(headers) {
-			var names = [],
-				types = [];
+		wdcw.schema.call(this, function getSchemaSuccess(schema) {
 
-			// Iterate through returned column header objects and process them into the
-			// format expected by the API.
-			headers.forEach(function(header) {
-				names.push(header.name);
-				types.push(header.type);
-
-				// If a column is marked as incremental refresh key, then set it.
-				if (header.incrementalRefresh) {
-					thisConnector.setIncrementalExtractColumn(header.name);
-				}
-			});
-
-			tableau.headersCallback(names, types);
+			schemaCallback(schema);
 		});
 	};
 
-	/**
-	 * Simplifies (and limits) the connector.getTableData method in a couple ways:
-	 * - Enables simpler asynchronous handling by providing a callback.
-	 * - Simplifies chunked/paged data handling by limiting the arguments that the
-	 *   implementor needs to be aware of to just 1) the data retrieved and 2) if
-	 *   paging functionality is needed, a token for the last record.
-	 * - Makes it so the implementor doesn't have to know to call the
-	 *   tableau.dataCallback method.
-	 *
-	 * @param {string} lastRecordToken
-	 *   The token provided by the implementor representing the last record or
-	 *   page retrieved.
-	 */
-	connector.getTableData = function callConnectorTableData(lastRecordToken) {
-		wdcw.tableData.call(this, function getTableDataSuccess(data, lastToken) {
-			// If there are more records to be returned, indicate as such to Tableau.
-			if (lastToken) {
-				tableau.dataCallback(data, lastToken, true);
-			}
-			// If no more records need to be retrieved, indicate as such to Tableau.
-			else {
-				tableau.dataCallback(data, null, false);
-			}
-		}, lastRecordToken);
+	connector.getData = function callConnectorData(table, doneCallback) {
+
+		wdcw.tableData.call(this, table, doneCallback);
 	};
 
 	/**
@@ -293,7 +247,7 @@ var wdcw = window.wdcw || {};
 
 			// Set connection data and connection name.
 			connector.setConnectionData(data);
-			tableau.connectionName = 'Tidepool ' + data['DataType'];
+			tableau.connectionName = 'Tidepool Blip';
 
 			// If there was a password, set the password.
 			if ($password.length) {
